@@ -7,6 +7,8 @@ import SpeedReading from "../components/games/SpeedReading";
 import PatternRecognition from "../components/games/PatternRecognition";
 import EmotionMatching from "../components/games/EmotionMatching";
 import FocusTrainer from "../components/games/FocusTrainer";
+import ScoopedGame from "../components/games/ScoopedGame";
+import HandDrawGame from "../components/games/HandDrawGame";
 import { Gamepad2, X, Play, Star, Trophy, Home, User, LogIn, LogOut, Settings, Zap, Target, Award, Medal, Crown, Sparkles, TrendingUp, Clock, Users, Flame } from "lucide-react";
 import { SpeechText } from "../components/speach";
 import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, where, Timestamp } from "firebase/firestore";
@@ -53,6 +55,8 @@ const GamesPage: React.FC = () => {
   const db = getFirestore();
 
   const games: Game[] = [
+    { id: "scooped", title: "SCOOP'D", component: ScoopedGame, logo: "https://cdn-icons-png.flaticon.com/512/3176/3176366.png", description: "Catch falling letters with your bucket in this fast-paced game!", rating: 4.9, category: "skill" },
+    { id: "handdraw", title: "Hand Draw Tracer", component: HandDrawGame, logo: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png", description: "Practice letter tracing by following the dotted lines!", rating: 4.8, category: "skill" },
     { id: "memory", title: "Memory Match", component: MemoryMatch, logo: "https://cdn-icons-png.flaticon.com/512/808/808439.png", description: "Test your memory with this fun card-matching game!", rating: 4.5, category: "memory" },
     { id: "word", title: "Word Puzzle", component: WordPuzzle, logo: "https://cdn-icons-png.flaticon.com/512/2491/2491935.png", description: "Solve challenging word puzzles to boost vocabulary.", rating: 4.2, category: "puzzle" },
     { id: "speed", title: "Speed Reading", component: SpeedReading, logo: "https://cdn-icons-png.flaticon.com/512/2933/2933245.png", description: "Improve your reading speed and comprehension.", rating: 4.7, category: "brain" },
@@ -70,6 +74,7 @@ const GamesPage: React.FC = () => {
     { id: "brain", name: "Brain Training" },
     { id: "logic", name: "Logic" },
     { id: "skill", name: "Skill" },
+    { id: "social", name: "Social" },
   ];
 
   const filteredGames = activeCategory === "all" 
