@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, BookOpen, Gamepad2, Calendar, Users, Brain, Settings, FileText, MessageSquare, User, LogOut, Sun, Moon } from 'lucide-react';
+import { Menu, X, Home, BookOpen, Gamepad2, Calendar, Users, Brain, Settings, FileText, MessageSquare, User, LogOut } from 'lucide-react';
 import { SpeechText } from '../components/speach';
 import { useAuth } from '../pages/AuthContext';
 import Login from '../pages/Login';
@@ -11,7 +11,6 @@ const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState<'login' | 'logout' | null>(null);
-  const [isDarkTheme, setIsDarkTheme] = useState(true); // Start with dark theme as default
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -53,13 +52,6 @@ const Navbar = () => {
     setIsLoginOpen(false);
   };
 
-  const toggleTheme = () => {
-    setIsDarkTheme(prev => !prev);
-    // Apply theme change to the document body or a parent container
-    document.body.classList.toggle('dark-theme');
-    document.body.classList.toggle('light-theme');
-  };
-
   const getUserInitials = () => {
     if (user && user.displayName) {
       const nameParts = user.displayName.split(' ');
@@ -89,15 +81,9 @@ const Navbar = () => {
     }
   }, [showSuccess]);
 
-  // Initialize theme on component mount
-  useEffect(() => {
-    // Apply dark theme by default
-    document.body.classList.add('dark-theme');
-  }, []);
-
   return (
     <>
-      <nav className="bg-black text-white shadow-lg z-50 fixed top-0 left-0 right-0 z-50">
+      <nav className="bg-black text-white shadow-lg fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2">
@@ -126,15 +112,6 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-gray-900 hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label={isDarkTheme ? "Switch to Light Theme" : "Switch to Dark Theme"}
-              >
-                {isDarkTheme ? <Sun className="h-5 w-5 text-yellow-300" /> : <Moon className="h-5 w-5 text-gray-300" />}
-              </button>
 
               {/* Profile Dropdown */}
               <div className="relative">
@@ -209,14 +186,6 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-2">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-gray-900 hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label={isDarkTheme ? "Switch to Light Theme" : "Switch to Dark Theme"}
-              >
-                {isDarkTheme ? <Sun className="h-5 w-5 text-yellow-300" /> : <Moon className="h-5 w-5 text-gray-300" />}
-              </button>
-              
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="rounded-md p-2 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"

@@ -20,6 +20,46 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { auth, rtdb, storage } from './firebase'; // Import from firebase.ts
 import { signOut } from 'firebase/auth';
 
+// Custom CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  .glassmorphism {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(209, 213, 219, 0.3);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+`;
+document.head.appendChild(style);
+
 interface Post {
   id: string;
   author: string;
@@ -500,314 +540,477 @@ const SocialPlatform = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 font-sans pt-9">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 font-sans pt-9">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-4 -right-4 w-72 h-72 bg-gradient-to-br from-blue-200 to-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute -bottom-8 -left-4 w-72 h-72 bg-gradient-to-br from-yellow-200 to-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-200 to-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
       {/* Top Header - Desktop */}
       {!isMobile && (
-        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6 border-b">
+        <motion.header 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="h-16 bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20 flex items-center justify-between px-6 relative z-10"
+        >
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-blue-600">NueroConnect</h1>
+            <motion.h1 
+              whileHover={{ scale: 1.05 }}
+              className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            >
+              NueroConnect
+            </motion.h1>
             <div className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search..."
-                className="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white w-64"
+                placeholder="Search amazing content..."
+                className="pl-10 pr-4 py-2 bg-white/70 backdrop-blur-sm border border-white/30 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white w-72 transition-all duration-300"
               />
             </div>
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentTab('feed')}
-              className={`flex flex-col items-center p-2 ${currentTab === 'feed' ? 'text-blue-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center p-3 rounded-xl transition-all duration-300 ${
+                currentTab === 'feed' 
+                  ? 'text-blue-600 bg-blue-50 shadow-md' 
+                  : 'text-gray-600 hover:text-blue-500 hover:bg-blue-50/50'
+              }`}
             >
               <Home className="w-5 h-5" />
-              <span className="text-xs mt-1">Home</span>
-            </button>
-            <button 
-              onClick={() => setCurrentTab('messages')}
-              className={`flex flex-col items-center p-2 ${currentTab === 'messages' ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <MessageSquare className="w-5 h-5" />
-              <span className="text-xs mt-1">Messages</span>
-            </button>
-            <button 
+              <span className="text-xs mt-1 font-medium">Home</span>
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentTab('notifications')}
-              className={`flex flex-col items-center p-2 relative ${currentTab === 'notifications' ? 'text-blue-600' : 'text-gray-600'}`}
+              className={`flex flex-col items-center p-3 rounded-xl transition-all duration-300 relative ${
+                currentTab === 'notifications' 
+                  ? 'text-purple-600 bg-purple-50 shadow-md' 
+                  : 'text-gray-600 hover:text-purple-500 hover:bg-purple-50/50'
+              }`}
             >
               <Bell className="w-5 h-5" />
-              <span className="text-xs mt-1">Notifications</span>
+              <span className="text-xs mt-1 font-medium">Notifications</span>
               {notifications.filter(n => !n.read).length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-lg font-bold"
+                >
                   {notifications.filter(n => !n.read).length}
-                </span>
+                </motion.span>
               )}
-            </button>
+            </motion.button>
           </nav>
           
           <div className="flex items-center space-x-4">
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentTab('create')}
-              className="hidden md:flex items-center space-x-1 bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition"
+              className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg font-medium"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Create</span>
-            </button>
-            <button 
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
               onClick={() => setCurrentTab('profile')}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 bg-white/70 backdrop-blur-sm rounded-full pr-4 pl-2 py-2 border border-white/30 hover:bg-white/90 transition-all duration-300 shadow-md"
             >
               {profileData.photoURL ? (
                 <img 
                   src={profileData.photoURL} 
                   alt="Profile" 
-                  className="w-8 h-8 rounded-full object-cover" 
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-200" 
                 />
               ) : (
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600" />
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
                 </div>
               )}
-              {!isMobile && <span className="text-sm font-medium">{profileData.displayName}</span>}
-            </button>
+              {!isMobile && <span className="text-sm font-medium text-gray-700">{profileData.displayName}</span>}
+            </motion.button>
           </div>
-        </header>
+        </motion.header>
       )}
 
       {/* Mobile Header */}
       {isMobile && (
-        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4 border-b">
+        <motion.header 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="h-16 bg-white/90 backdrop-blur-md shadow-lg border-b border-white/20 flex items-center justify-between px-4 relative z-10"
+        >
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-blue-600">ConnectPro</h1>
+            <motion.h1 
+              whileHover={{ scale: 1.05 }}
+              className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            >
+              ConnectPro
+            </motion.h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Search className="w-5 h-5 text-gray-600" />
-            <button 
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-2 rounded-full bg-gray-100/70 backdrop-blur-sm"
+            >
+              <Search className="w-5 h-5 text-gray-600" />
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setCurrentTab('notifications')}
-              className="relative"
+              className="relative p-2 rounded-full bg-gray-100/70 backdrop-blur-sm"
             >
               <Bell className="w-5 h-5 text-gray-600" />
               {notifications.filter(n => !n.read).length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                >
                   {notifications.filter(n => !n.read).length}
-                </span>
+                </motion.span>
               )}
-            </button>
+            </motion.button>
           </div>
-        </header>
+        </motion.header>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        {error && (
-          <div className="max-w-2xl mx-auto p-4">
-            <div className="bg-red-100 text-red-700 p-3 rounded-lg">{error}</div>
-          </div>
-        )}
+      <div className="flex-1 overflow-y-auto relative z-10">
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-2xl mx-auto p-4"
+            >
+              <div className="bg-gradient-to-r from-red-100 to-pink-100 border border-red-200 text-red-700 p-4 rounded-xl shadow-lg backdrop-blur-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="font-medium">{error}</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {currentTab === 'feed' && (
-          <div className="max-w-2xl mx-auto p-4 space-y-4">
-            <div className="bg-white rounded-xl shadow p-4">
-              <div className="flex items-start space-x-3">
-                {profileData.photoURL ? (
-                  <img 
-                    src={profileData.photoURL} 
-                    alt="Profile" 
-                    className="w-10 h-10 rounded-full object-cover" 
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-600" />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <textarea
-                    placeholder="What's on your mind?"
-                    className="w-full p-2 border-b border-gray-100 focus:outline-none focus:border-blue-500 resize-none"
-                    rows={2}
-                    onClick={() => setCurrentTab('create')}
-                  />
-                  <div className="flex justify-between items-center pt-2">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-2xl mx-auto p-4 space-y-6"
+          >
+            {/* Enhanced Post Creation Card */}
+            <motion.div 
+              whileHover={{ scale: 1.01, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+              className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 overflow-hidden"
+            >
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-1">
+                <div className="bg-white rounded-2xl p-4">
+                  <div className="flex items-start space-x-3">
+                    {profileData.photoURL ? (
+                      <motion.img 
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        src={profileData.photoURL} 
+                        alt="Profile" 
+                        className="w-12 h-12 rounded-full object-cover ring-3 ring-blue-200 shadow-md" 
+                      />
+                    ) : (
+                      <motion.div 
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center shadow-md"
                       >
-                        <ImageIcon className="w-5 h-5 text-green-500" />
-                      </button>
-                      <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                        <Video className="w-5 h-5 text-red-500" />
-                      </button>
-                      <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                        <FileText className="w-5 h-5 text-yellow-500" />
-                      </button>
+                        <User className="w-6 h-6 text-white" />
+                      </motion.div>
+                    )}
+                    <div className="flex-1">
+                      <motion.textarea
+                        whileFocus={{ scale: 1.02 }}
+                        placeholder="What's inspiring you today? Share your thoughts..."
+                        className="w-full p-3 border-2 border-gray-100 focus:border-purple-300 rounded-xl resize-none transition-all duration-300 bg-gray-50/50 focus:bg-white focus:shadow-lg"
+                        rows={3}
+                        onClick={() => setCurrentTab('create')}
+                      />
+                      <div className="flex justify-between items-center pt-3">
+                        <div className="flex space-x-2">
+                          <motion.button 
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-3 text-gray-500 hover:text-green-500 hover:bg-green-50 rounded-xl transition-all duration-300"
+                          >
+                            <ImageIcon className="w-5 h-5" />
+                          </motion.button>
+                          <motion.button 
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="p-3 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300"
+                          >
+                            <Video className="w-5 h-5" />
+                          </motion.button>
+                          <motion.button 
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="p-3 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 rounded-xl transition-all duration-300"
+                          >
+                            <FileText className="w-5 h-5" />
+                          </motion.button>
+                        </div>
+                        <motion.button 
+                          whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(0,0,0,0.1)" }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setCurrentTab('create')}
+                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg"
+                        >
+                          Post
+                        </motion.button>
+                      </div>
                     </div>
-                    <button 
-                      onClick={() => setCurrentTab('create')}
-                      className="px-4 py-1 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200"
-                    >
-                      Post
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            {posts.map((post) => (
-              <div key={post.id} className="bg-white rounded-xl shadow overflow-hidden">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    {otherUsers.find(u => u.uid === post.authorId)?.photoURL ? (
-                      <img 
-                        src={otherUsers.find(u => u.uid === post.authorId)?.photoURL} 
-                        alt="Author" 
-                        className="w-10 h-10 rounded-full object-cover" 
-                      />
-                    ) : (
-                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-600" />
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-medium">{post.author}</p>
-                      <p className="text-xs text-gray-500">{getTimeAgo(post.timestamp)}</p>
-                    </div>
-                  </div>
-                  <button className="text-gray-500 hover:bg-gray-100 p-2 rounded-full">
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="px-4 pb-2">
-                  <p className="text-gray-800">{post.content}</p>
-                </div>
-
-                {post.mediaUrl && (
-                  <div className="w-full">
-                    {post.mediaType === 'image' ? (
-                      <img 
-                        src={post.mediaUrl} 
-                        alt="Post media" 
-                        className="w-full max-h-96 object-cover" 
-                      />
-                    ) : (
-                      <video 
-                        src={post.mediaUrl} 
-                        controls 
-                        className="w-full max-h-96"
-                      />
-                    )}
-                  </div>
-                )}
-
-                <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center">
-                      <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-                      <span>{post.likes?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>{Object.keys(post.comments).length}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <span>{post.shares} shares</span>
-                  </div>
-                </div>
-
-                <div className="px-4 py-2 border-t border-gray-100 grid grid-cols-3">
-                  <button 
-                    onClick={() => handleLikePost(post.id)}
-                    className={`flex items-center justify-center space-x-2 py-2 rounded-lg ${post.likes?.includes(user?.uid || '') ? 'text-blue-600' : 'text-gray-600'}`}
-                  >
-                    <ThumbsUp className="w-5 h-5" />
-                    <span>Like</span>
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedPost(post);
-                      setCurrentTab('messages');
-                    }}
-                    className="flex items-center justify-center space-x-2 py-2 rounded-lg text-gray-600 hover:bg-gray-100"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    <span>Comment</span>
-                  </button>
-                  <button 
-                    onClick={() => handleSharePost(post.id)}
-                    className="flex items-center justify-center space-x-2 py-2 rounded-lg text-gray-600 hover:bg-gray-100"
-                  >
-                    <Share2 className="w-5 h-5" />
-                    <span>Share</span>
-                  </button>
-                </div>
-
-                {selectedPost?.id === post.id && (
-                  <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
-                    <div className="max-h-48 overflow-y-auto space-y-3">
-                      {Object.entries(post.comments).map(([id, comment]: [string, any]) => (
-                        <div key={id} className="flex space-x-2">
-                          {otherUsers.find(u => u.uid === comment.authorId)?.photoURL ? (
-                            <img 
-                              src={otherUsers.find(u => u.uid === comment.authorId)?.photoURL} 
-                              alt="Commenter" 
-                              className="w-8 h-8 rounded-full object-cover" 
-                            />
-                          ) : (
-                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                              <User className="w-4 h-4 text-gray-600" />
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <div className="bg-white p-2 rounded-lg">
-                              <p className="font-medium text-sm">{comment.author}</p>
-                              <p className="text-sm">{comment.content}</p>
-                            </div>
-                            <div className="flex items-center space-x-3 text-xs text-gray-500 mt-1 px-2">
-                              <span>{getTimeAgo(comment.timestamp)}</span>
-                              <button>Like</button>
-                              <button>Reply</button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-3 flex items-center space-x-2">
-                      {profileData.photoURL ? (
-                        <img 
-                          src={profileData.photoURL} 
-                          alt="Profile" 
-                          className="w-8 h-8 rounded-full object-cover" 
+            {/* Enhanced Posts Feed */}
+            <AnimatePresence>
+              {posts.map((post, index) => (
+                <motion.div 
+                  key={post.id}
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -5, boxShadow: "0 25px 50px rgba(0,0,0,0.15)" }}
+                  className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 overflow-hidden group"
+                >
+                  {/* Post Header */}
+                  <div className="p-4 flex items-center justify-between bg-gradient-to-r from-gray-50/50 to-blue-50/50">
+                    <div className="flex items-center space-x-3">
+                      {otherUsers.find(u => u.uid === post.authorId)?.photoURL ? (
+                        <motion.img 
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                          src={otherUsers.find(u => u.uid === post.authorId)?.photoURL} 
+                          alt="Author" 
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md" 
                         />
                       ) : (
-                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-gray-600" />
-                        </div>
-                      )}
-                      <div className="flex-1 flex items-center bg-white rounded-full px-3 py-1">
-                        <input
-                          type="text"
-                          placeholder="Write a comment..."
-                          className="flex-1 text-sm focus:outline-none"
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
-                        />
-                        <button 
-                          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                          className="p-1 text-gray-500 hover:text-blue-500"
+                        <motion.div 
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                          className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center shadow-md"
                         >
-                          <Smile className="w-4 h-4" />
-                        </button>
+                          <User className="w-6 h-6 text-white" />
+                        </motion.div>
+                      )}
+                      <div>
+                        <p className="font-semibold text-gray-800">{post.author}</p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-xs text-gray-500">{getTimeAgo(post.timestamp)}</p>
+                          <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                          <span className="text-xs text-blue-500 font-medium">Public</span>
+                        </div>
                       </div>
                     </div>
+                    <motion.button 
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-all duration-300"
+                    >
+                      <MoreHorizontal className="w-5 h-5" />
+                    </motion.button>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Post Content */}
+                  <div className="px-4 pb-3">
+                    <p className="text-gray-800 leading-relaxed">{post.content}</p>
+                  </div>
+
+                  {/* Post Media */}
+                  {post.mediaUrl && (
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="w-full overflow-hidden"
+                    >
+                      {post.mediaType === 'image' ? (
+                        <img 
+                          src={post.mediaUrl} 
+                          alt="Post media" 
+                          className="w-full max-h-96 object-cover transition-transform duration-500 group-hover:scale-105" 
+                        />
+                      ) : (
+                        <video 
+                          src={post.mediaUrl} 
+                          controls 
+                          className="w-full max-h-96 transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
+                    </motion.div>
+                  )}
+
+                  {/* Post Stats */}
+                  <div className="px-4 py-3 border-t border-gray-100/50 flex items-center justify-between text-sm text-gray-500 bg-gray-50/30">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                        <span className="font-medium">{post.likes?.length || 0}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MessageCircle className="w-4 h-4 text-blue-500" />
+                        <span className="font-medium">{Object.keys(post.comments).length}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Share2 className="w-4 h-4 text-green-500" />
+                      <span className="font-medium">{post.shares} shares</span>
+                    </div>
+                  </div>
+
+                  {/* Enhanced Action Buttons */}
+                  <div className="px-4 py-3 border-t border-gray-100/50 grid grid-cols-3 gap-2 bg-white/50">
+                    <motion.button 
+                      whileHover={{ scale: 1.05, backgroundColor: "rgb(239 246 255)" }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleLikePost(post.id)}
+                      className={`flex items-center justify-center space-x-2 py-3 rounded-xl font-medium transition-all duration-300 ${
+                        post.likes?.includes(user?.uid || '') 
+                          ? 'text-blue-600 bg-blue-50' 
+                          : 'text-gray-600 hover:text-blue-600'
+                      }`}
+                    >
+                      <ThumbsUp className={`w-5 h-5 ${post.likes?.includes(user?.uid || '') ? 'fill-blue-600' : ''}`} />
+                      <span>Like</span>
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.05, backgroundColor: "rgb(236 253 245)" }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setSelectedPost(selectedPost?.id === post.id ? null : post);
+                      }}
+                      className="flex items-center justify-center space-x-2 py-3 rounded-xl text-gray-600 hover:text-green-600 font-medium transition-all duration-300"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span>Comment</span>
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.05, backgroundColor: "rgb(254 243 199)" }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleSharePost(post.id)}
+                      className="flex items-center justify-center space-x-2 py-3 rounded-xl text-gray-600 hover:text-yellow-600 font-medium transition-all duration-300"
+                    >
+                      <Share2 className="w-5 h-5" />
+                      <span>Share</span>
+                    </motion.button>
+                  </div>
+
+                  {/* Enhanced Comments Section */}
+                  {selectedPost?.id === post.id && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="border-t border-gray-100/50 bg-gradient-to-r from-gray-50/50 to-blue-50/50"
+                    >
+                      <div className="max-h-48 overflow-y-auto space-y-3 p-4">
+                        <AnimatePresence>
+                          {Object.entries(post.comments).map(([id, comment]: [string, any], commentIndex) => (
+                            <motion.div 
+                              key={id}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: 20 }}
+                              transition={{ delay: commentIndex * 0.1 }}
+                              className="flex space-x-3"
+                            >
+                              {otherUsers.find(u => u.uid === comment.authorId)?.photoURL ? (
+                                <img 
+                                  src={otherUsers.find(u => u.uid === comment.authorId)?.photoURL} 
+                                  alt="Commenter" 
+                                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm" 
+                                />
+                              ) : (
+                                <div className="w-8 h-8 bg-gradient-to-br from-gray-300 to-gray-500 rounded-full flex items-center justify-center shadow-sm">
+                                  <User className="w-4 h-4 text-white" />
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-2xl shadow-sm border border-white/30">
+                                  <p className="font-medium text-sm text-gray-800">{comment.author}</p>
+                                  <p className="text-sm text-gray-700 mt-1">{comment.content}</p>
+                                </div>
+                                <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2 px-3">
+                                  <span>{getTimeAgo(comment.timestamp)}</span>
+                                  <motion.button 
+                                    whileHover={{ scale: 1.05 }}
+                                    className="hover:text-blue-500 font-medium"
+                                  >
+                                    Like
+                                  </motion.button>
+                                  <motion.button 
+                                    whileHover={{ scale: 1.05 }}
+                                    className="hover:text-blue-500 font-medium"
+                                  >
+                                    Reply
+                                  </motion.button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                      
+                      {/* Enhanced Comment Input */}
+                      <div className="p-4 border-t border-white/30">
+                        <div className="flex items-center space-x-3">
+                          {profileData.photoURL ? (
+                            <img 
+                              src={profileData.photoURL} 
+                              alt="Profile" 
+                              className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-200 shadow-sm" 
+                            />
+                          ) : (
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center shadow-sm">
+                              <User className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                          <div className="flex-1 flex items-center bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 border border-white/30 shadow-sm">
+                            <input
+                              type="text"
+                              placeholder="Write a thoughtful comment..."
+                              className="flex-1 text-sm focus:outline-none bg-transparent"
+                              value={newComment}
+                              onChange={(e) => setNewComment(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
+                            />
+                            <motion.button 
+                              whileHover={{ scale: 1.1, rotate: 10 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                              className="p-1 text-gray-400 hover:text-purple-500 transition-colors"
+                            >
+                              <Smile className="w-4 h-4" />
+                            </motion.button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <div ref={postsEndRef} />
-          </div>
+          </motion.div>
         )}
 
         {currentTab === 'messages' && (
@@ -854,7 +1057,10 @@ const SocialPlatform = () => {
                     <div 
                       key={notification.id} 
                       className={`flex items-start space-x-3 p-2 rounded-lg ${!notification.read ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
-                      onClick={() => markNotificationAsRead(notification.id)}
+                      onClick={() => {
+                        setSelectedPost(posts.find(post => post.id === notification.postId) || null);
+                        setCurrentTab('feed');
+                      }}
                     >
                       <div className={`p-2 rounded-full ${!notification.read ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}>
                         {notification.type === 'like' && <Heart className="w-5 h-5" />}
@@ -1060,33 +1266,20 @@ const SocialPlatform = () => {
                         <ImageIcon className="w-5 h-5" />
                       </button>
                       <input 
-                        type="file" 
+                        type="file"
+                        accept="image/*,video/*"
                         ref={fileInputRef}
                         onChange={handleImageUpload}
-                        accept="image/*"
                         className="hidden"
                       />
-                      <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                        <Video className="w-5 h-5" />
-                      </button>
-                      <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                        <FileText className="w-5 h-5" />
-                      </button>
                       <button 
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
+                        onClick={handleCreatePost}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm flex items-center space-x-1"
                       >
-                        <Smile className="w-5 h-5" />
+                        <Send className="w-4 h-4" />
+                        <span>Post</span>
                       </button>
                     </div>
-                    
-                    <button 
-                      onClick={handleCreatePost}
-                      disabled={loading || (!newPostContent.trim() && !postMedia)}
-                      className={`px-4 py-2 rounded-full ${loading || (!newPostContent.trim() && !postMedia) ? 'bg-gray-300 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                    >
-                      {loading ? 'Posting...' : 'Post'}
-                    </button>
                   </div>
                 </div>
               </div>
@@ -1094,85 +1287,6 @@ const SocialPlatform = () => {
           </div>
         )}
       </div>
-
-      {/* Mobile Bottom Navigation */}
-      {isMobile && (
-        <nav className="h-16 bg-white shadow-t flex justify-around items-center">
-          <button 
-            onClick={() => setCurrentTab('feed')}
-            className={`flex flex-col items-center p-2 ${currentTab === 'feed' ? 'text-blue-600' : 'text-gray-600'}`}
-          >
-            <Home className="w-6 h-6" />
-            <span className="text-xs mt-1">Home</span>
-          </button>
-          <button 
-            onClick={() => setCurrentTab('messages')}
-            className={`flex flex-col items-center p-2 ${currentTab === 'messages' ? 'text-blue-600' : 'text-gray-600'}`}
-          >
-            <MessageSquare className="w-6 h-6" />
-            <span className="text-xs mt-1">Messages</span>
-          </button>
-          <button 
-            onClick={() => setCurrentTab('create')}
-            className="flex flex-col items-center p-2 text-gray-600"
-          >
-            <PlusCircle className="w-6 h-6" />
-            <span className="text-xs mt-1">Create</span>
-          </button>
-          <button 
-            onClick={() => setCurrentTab('notifications')}
-            className={`flex flex-col items-center p-2 relative ${currentTab === 'notifications' ? 'text-blue-600' : 'text-gray-600'}`}
-          >
-            <Bell className="w-6 h-6" />
-            <span className="text-xs mt-1">Notifications</span>
-            {notifications.filter(n => !n.read).length > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                {notifications.filter(n => !n.read).length}
-              </span>
-            )}
-          </button>
-          <button 
-            onClick={() => setCurrentTab('profile')}
-            className={`flex flex-col items-center p-2 ${currentTab === 'profile' ? 'text-blue-600' : 'text-gray-600'}`}
-          >
-            <User className="w-6 h-6" />
-            <span className="text-xs mt-1">Profile</span>
-          </button>
-        </nav>
-      )}
-
-      {/* Emoji Picker */}
-      <AnimatePresence>
-        {showEmojiPicker && (
-          <motion.div
-            ref={emojiPickerRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute bottom-16 right-4 bg-white rounded-lg shadow-lg z-10"
-          >
-            <EmojiPicker
-              onEmojiClick={(emoji) => {
-                if (currentTab === 'create') {
-                  setNewPostContent((prev) => prev + emoji.emoji);
-                } else if (selectedPost) {
-                  setNewComment((prev) => prev + emoji.emoji);
-                }
-                setShowEmojiPicker(false);
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Hidden file input */}
-      <input 
-        type="file" 
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        accept="image/*"
-        className="hidden"
-      />
     </div>
   );
 };

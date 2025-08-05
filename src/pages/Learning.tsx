@@ -149,7 +149,7 @@ const Learning: React.FC = () => {
 
   const handleEnroll = async (courseTitle: string) => {
     const newEnrolled = new Set(enrolledCourses);
-    let newCompletion = { ...completion };
+    const newCompletion = { ...completion };
 
     if (newEnrolled.has(courseTitle)) {
       newEnrolled.delete(courseTitle);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const articles = [
   {
@@ -39,25 +39,17 @@ const articles = [
 ];
 
 const Articles: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
   return (
-    <div className={`min-h-screen p-6 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+    <div className="min-h-screen p-6 bg-white text-gray-900">
       {/* Header */}
       <div className="flex justify-between items-center mb-10">
         <h1 className="text-4xl font-bold">Neurodiversity Articles</h1>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-3 rounded-full bg-gray-300 dark:bg-gray-700 hover:scale-110 transition"
-        >
-          {darkMode ? "🌞" : "🌙"}
-        </button>
       </div>
 
       {/* Articles List */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map((article, index) => (
-          <div key={index} className="bg-gray-100 dark:bg-gray-800 p-5 rounded-lg shadow-lg">
+          <div key={index} className="bg-gray-100 p-5 rounded-lg shadow-lg">
             <img
               src={article.img}
               alt={article.title}
