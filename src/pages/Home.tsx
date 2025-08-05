@@ -370,32 +370,7 @@ const Home = () => {
           </motion.section>
 
           {/* Stats Section */}
-          <motion.section
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="bg-gradient-to-r from-white-600 to-purple-600 rounded-2xl p-8 text-black"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-              {[
-                { icon: Users, stat: '10K+', label: 'Active Users' },
-                { icon: BookOpen, stat: '50+', label: 'Courses' },
-                { icon: Star, stat: '95%', label: 'Satisfaction' },
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  className="text-center"
-                >
-                  <item.icon className="w-12 h-12 mx-auto mb-4" />
-                  <h3 className="text-4xl font-bold mb-2">{item.stat}</h3>
-                  <p className="text-lg">{item.label}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.section>
-
+          
           {/* CTA Section */}
           <motion.section
             initial={{ opacity: 0 }}
