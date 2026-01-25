@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, RefreshCcw, Pause, X } from 'lucide-react';
+import { Play, RefreshCcw, Pause, X, Camera, CameraOff } from 'lucide-react';
 import bucketImage from './bucket.png';
+// import { useHandTracking, getHandPosition } from '../../utils/handTracking';
 
 interface ScoopedGameProps {
   onGameComplete: (score: number) => void;
@@ -24,10 +25,23 @@ const ScoopedGame: React.FC<ScoopedGameProps> = ({ onGameComplete }) => {
   const [objectIdCounter, setObjectIdCounter] = useState(0);
   const [gameWidth, setGameWidth] = useState(1000);
   const [gameHeight, setGameHeight] = useState(700);
+  const [handTrackingEnabled, setHandTrackingEnabled] = useState(false);
 
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
   const lastObjectTime = useRef<number>(0);
+
+  // Hand tracking
+  const { 
+    videoRef, 
+    canvasRef, 
+    hands, 
+    isInitialized, 
+    isLoading, 
+    error: handTrackingError,
+    initializeCamera,
+    cleanup 
+  } = useHandTracking();
 
   const BUCKET_WIDTH = 100;
   const BUCKET_HEIGHT = 80;
@@ -68,9 +82,33 @@ const ScoopedGame: React.FC<ScoopedGameProps> = ({ onGameComplete }) => {
     setGameState('playing');
   }, [initializeGame]);
 
+  // Hand tracking for bucket control
+  useEffect(() => {
+    if (handTrackingEnabled && hands.length > 0 && gameState === 'playing') {
+      const hand = hands[0];
+      const handPos = getHandPosition(hand.landmarks);
+      
+      // Convert normalized coordinates to game coordinates
+      const handX = handPos.x * gameWidth;
+      const clampedX = Math.max(BUCKET_WIDTH / 2, Math.min(gameWidth - BUCKET_WIDTH / 2, handX));
+      setBucketX(clampedX);
+    }
+  }, [hands, handTrackingEnabled, gameState, gameWidth]);
+
+  // Toggle camera tracking
+  const toggleHandTracking = useCallback(async () => {
+    if (handTrackingEnabled) {
+      cleanup();
+      setHandTrackingEnabled(false);
+    } else {
+      await initializeCamera();
+      setHandTrackingEnabled(true);
+    }
+  }, [handTrackingEnabled, cleanup, initializeCamera]);
+
   // Mouse move handler for bucket control
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || handTrackingEnabled) return;
     
     const rect = gameAreaRef.current?.getBoundingClientRect();
     if (rect) {
@@ -78,7 +116,7 @@ const ScoopedGame: React.FC<ScoopedGameProps> = ({ onGameComplete }) => {
       const clampedX = Math.max(BUCKET_WIDTH / 2, Math.min(gameWidth - BUCKET_WIDTH / 2, mouseX));
       setBucketX(clampedX);
     }
-  }, [gameState, gameWidth]);
+  }, [gameState, gameWidth, handTrackingEnabled]);
 
   // Game loop
   const gameLoop = useCallback(() => {
@@ -312,7 +350,44 @@ const ScoopedGame: React.FC<ScoopedGameProps> = ({ onGameComplete }) => {
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <div className="text-center text-white">
               <h3 className="text-2xl font-bold mb-4">Ready to Play?</h3>
-              <p className="mb-4">Move your mouse to control the bucket and catch the target letters!</p>
+              <p className="mb-4">
+                {handTrackingEnabled 
+                  ? "Move your hand in front of the camera to control the bucket!" 
+                  : "Move your mouse to control the bucket and catch the target letters!"
+                }
+              </p>
+              
+              {/* Camera Controls */}
+              <div className="mb-6">
+                <button
+                  onClick={toggleHandTracking}
+                  disabled={isLoading}
+                  className={`px-4 py-2 mr-2 rounded-lg font-bold flex items-center gap-2 mx-auto mb-4 ${
+                    handTrackingEnabled 
+                      ? 'bg-red-500 hover:bg-red-600 text-white' 
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : handTrackingEnabled ? (
+                    <CameraOff size={16} />
+                  ) : (
+                    <Camera size={16} />
+                  )}
+                  {isLoading 
+                    ? 'Initializing Camera...' 
+                    : handTrackingEnabled 
+                    ? 'Disable Hand Tracking' 
+                    : 'Enable Hand Tracking'
+                  }
+                </button>
+                
+                {handTrackingError && (
+                  <p className="text-red-400 text-sm mb-2">{handTrackingError}</p>
+                )}
+              </div>
+
               <button
                 onClick={startGame}
                 className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-bold text-white flex items-center gap-2 mx-auto"
@@ -373,15 +448,58 @@ const ScoopedGame: React.FC<ScoopedGameProps> = ({ onGameComplete }) => {
             <RefreshCcw size={16} />
             Reset
           </button>
+          <button
+            onClick={toggleHandTracking}
+            disabled={isLoading}
+            className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 ${
+              handTrackingEnabled 
+                ? 'bg-red-500 hover:bg-red-600 text-white' 
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : handTrackingEnabled ? (
+              <CameraOff size={16} />
+            ) : (
+              <Camera size={16} />
+            )}
+            {handTrackingEnabled ? 'Disable Camera' : 'Enable Camera'}
+          </button>
         </div>
       )}
+
+      {/* Camera Feed */}
+      <div className="mt-4 relative">
+        <div className={`bg-black rounded-lg overflow-hidden w-48 h-36 mx-auto relative ${
+          handTrackingEnabled && isInitialized ? 'block' : 'hidden'
+        }`}>
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover transform -scale-x-100"
+            autoPlay
+            playsInline
+            muted
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full transform -scale-x-100"
+            width={640}
+            height={480}
+          />
+          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            Hands: {hands.length}
+          </div>
+        </div>
+      </div>
 
       {/* Instructions */}
       <div className="mt-6 max-w-md text-center text-white/80 text-sm">
         <p className="mb-2">
-          Move your mouse left and right to control the bucket. 
-          Catch only the letters that match the target letter shown on the bucket. 
-          Wrong catches will cost you a life!
+          {handTrackingEnabled 
+            ? "Move your hand left and right in front of the camera to control the bucket. Catch only the letters that match the target letter!" 
+            : "Move your mouse left and right to control the bucket. Catch only the letters that match the target letter shown on the bucket. Wrong catches will cost you a life!"
+          }
         </p>
         <p className="text-xs text-white/60">
           Press <kbd className="bg-white/20 px-1 rounded">Esc</kbd> or click the ✕ button to exit fullscreen
